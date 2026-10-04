@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Split the stay</title>
+<style>
+:root{--bg:#12161c;--panel:#1b222b;--line:#2c3643;--text:#e8edf2;--muted:#8fa0b1;--accent:#5fd0c5;--accent-ink:#0b1a18;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;line-height:1.5;min-height:100vh;display:flex;justify-content:center;padding:24px 16px}
+main{width:100%;max-width:440px}
+h1{font-size:1.7rem;margin:0 0 4px;letter-spacing:-.01em}
+p.sub{margin:0 0 24px;color:var(--muted)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px}
+label{display:block;font-size:.95rem;color:var(--muted);margin-bottom:6px}
+.field{margin-bottom:18px}
+input{width:100%;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:1.1rem;font-family:inherit}
+input:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.stepper{display:flex;gap:8px}
+.stepper button{width:48px;flex:none;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:10px;font-size:1.4rem;cursor:pointer}
+.stepper button:hover{border-color:var(--accent)}
+.stepper input{text-align:center}
+.result{margin-top:20px;text-align:center}
+.result .each{font-size:3rem;font-weight:700;color:var(--accent);line-height:1.1;margin:4px 0}
+.result small{color:var(--muted)}
+.extra{margin-top:16px;padding-top:16px;border-top:1px solid var(--line);display:flex;justify-content:space-between;color:var(--muted);font-size:.95rem}
+.extra b{color:var(--text)}
+.msg{color:#ff9b8a;min-height:1.4em;font-size:.9rem;margin-top:8px;text-align:center}
+</style>
+</head>
+<body>
+<main>
+<h1>Split the stay</h1>
+<p class="sub">Work out what everyone owes for the accommodation.</p>
+<div class="panel">
+  <div class="field">
+    <label for="cost">Total accommodation cost</label>
+    <input id="cost" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00">
+  </div>
+  <div class="field">
+    <label for="people">Number of people</label>
+    <div class="stepper">
+      <button type="button" id="minus" aria-label="One fewer person">−</button>
+      <input id="people" type="number" inputmode="numeric" min="1" step="1" value="4">
+      <button type="button" id="plus" aria-label="One more person">+</button>
+    </div>
+  </div>
+  <div class="field" style="margin-bottom:0">
+    <label for="nights">Number of nights (optional)</label>
+    <input id="nights" type="number" inputmode="numeric" min="1" step="1" placeholder="e.g. 7">
+  </div>
+  <div class="result">
+    <small>Each person pays</small>
+    <div class="each" id="each">0.00</div>
+  </div>
+  <div class="extra" id="extra" hidden><span>Per person, per night</span><b id="night">0.00</b></div>
+  <div class="msg" id="msg" role="status"></div>
+</div>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const fmt=n=>n.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+function calc(){
+  const cost=parseFloat($('cost').value),p=parseInt($('people').value,10),n=parseInt($('nights').value,10);
+  $('msg').textContent='';
+  if(!(p>=1)){$('each').textContent='0.00';$('extra').hidden=true;$('msg').textContent='Enter at least 1 person.';return}
+  if(!(cost>=0)){$('each').textContent='0.00';$('extra').hidden=true;return}
+  const each=cost/p;
+  $('each').textContent=fmt(each);
+  if(n>=1){$('night').textContent=fmt(each/n);$('extra').hidden=false}else $('extra').hidden=true;
+}
+$('minus').onclick=()=>{$('people').value=Math.max(1,(parseInt($('people').value,10)||1)-1);calc()};
+$('plus').onclick=()=>{$('people').value=(parseInt($('people').value,10)||0)+1;calc()};
+['cost','people','nights'].forEach(id=>$(id).addEventListener('input',calc));
+calc();
+</script>
+</body>
+</html>
